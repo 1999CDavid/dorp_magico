@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug de Datos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="data-container">
+        <h1>Datos del Sistema</h1>
+
+        {% if debug_info %}
+            <div class="data-section">
+                <h2>Matriz de Distancias</h2>
+                <table>
+                    <tr>
+                        <th>Inst/Cliente</th>
+                        {% for j in range(debug_info.matriz[0]|length) %}
+                            <th>{{ j+1 }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for i in range(debug_info.matriz|length) %}
+                        <tr>
+                            <td><strong>{{ i+1 }}</strong></td>
+                            {% for j in range(debug_info.matriz[i]|length) %}
+                                <td>{{ debug_info.matriz[i][j] }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="execution-section">
+                <a href="{{ url_for('ejecutar_con_datos_prueba') }}" class="btn btn-execute">
+                    ▶ Ejecutar Algoritmo DROP
+                </a>
+                <a href="{{ url_for('ejecutar_algoritmo') }}" class="btn">
+                    ▶ Ejecutar con Datos Actuales
+                </a>
+            </div>
+        {% else %}
+            <div class="error-message">No hay datos disponibles</div>
+        {% endif %}
+    </div>
+</body>
+</html>

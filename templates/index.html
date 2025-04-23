@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritmo DROP - Configuración</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Algoritmo DROP para Localización</h1>
+        
+        <form action="{{ url_for('configurar_matriz') }}" method="POST" class="config-form">
+            <h2>Configuración Inicial</h2>
+            
+            <div class="form-group">
+                <label for="filas">Número de Instalaciones (Filas):</label>
+                <input type="number" id="filas" name="filas" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="columnas">Número de Clientes (Columnas):</label>
+                <input type="number" id="columnas" name="columnas" min="1" required>
+            </div>
+            
+            <button type="submit" class="btn">Crear Matriz</button>
+        </form>
+        
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+    <!-- Agrega esto en tu index.html, dentro del <div class="container"> -->
+    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p>¿Quieres probar con datos de ejemplo?</p>
+        <a href="{{ url_for('cargar_datos_prueba') }}" class="btn btn-info" onclick="console.log('Botón clickeado')">
+            Cargar Datos de Prueba
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Matriz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Editar Matriz de Distancias</h1>
+        <form action="{{ url_for('actualizar_matriz') }}" method="POST">
+            <input type="hidden" name="filas" value="{{ filas }}">
+            <input type="hidden" name="columnas" value="{{ columnas }}">
+            
+            <table class="matrix-editor">
+                <thead>
+                    <tr>
+                        <th>Inst/Cliente</th>
+                        {% for j in range(columnas) %}
+                            <th>Cliente {{ j+1 }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(filas) %}
+                        <tr>
+                            <td class="row-header">Instalación {{ i+1 }}</td>
+                            {% for j in range(columnas) %}
+                                <td>
+                                    <input type="number" step="0.1" min="0" 
+                                           name="matriz_{{ i }}_{{ j }}" 
+                                           value="{{ matriz[i][j] }}" required>
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn">Continuar</button>
+        </form>
+    </div>
+</body>
+</html>

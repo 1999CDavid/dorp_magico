@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados Algoritmo DROP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .instalaciones-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .badge {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .costo-total {
+            font-size: 2rem;
+            color: #2ecc71;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .parameters-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .parameters-table th, .parameters-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .parameters-table th {
+            background: #3498db;
+            color: white;
+        }
+        .parameters-table tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+   
+</head>
+<body>
+    <div class="container">
+        {% if resultados %}
+        <div class="header">
+            <h1>Resultados del Algoritmo DROP</h1>
+        </div>
+
+        <div class="result-card">
+            <h2>Instalaciones Recomendadas</h2>
+            <p>Las instalaciones que minimizan el costo total son:</p>
+            <div class="instalaciones-list">
+                {% for inst in resultados.instalaciones_abiertas %}
+                    <span class="badge">Instalación {{ inst }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="result-card">
+            <h2>Costo Total Estimado</h2>
+            <p>El costo mínimo total calculado es:</p>
+            <div class="costo-total">
+                ${{ "%0.2f"|format(resultados.costo_total) }} USD
+            </div>
+            <p>Desglose de costos:</p>
+            <ul>
+                <li><strong>Costos fijos:</strong> ${{ "%0.2f"|format(resultados.costos_fijos|sum) }} USD</li>
+                <li><strong>Costos variables:</strong> ${{ "%0.2f"|format(resultados.costo_total - (resultados.costos_fijos|sum)) }} USD</li>
+            </ul>
+        </div>
+
+        <div class="result-card">
+            <h2>Parámetros Utilizados</h2>
+            <table class="parameters-table">
+                <tr>
+                    <th>Parámetro</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>Costo por kilómetro</td>
+                    <td>${{ resultados.costo_por_km }} USD/km</td>
+                </tr>
+                <tr>
+                    <td>Número de instalaciones</td>
+                    <td>{{ resultados.matriz_costos|length }}</td>
+                </tr>
+                <tr>
+                    <td>Número de clientes</td>
+                    <td>{{ resultados.demandas|length }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="result-card">
+            <h2>Demandas de Clientes</h2>
+            <table class="parameters-table">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Demanda</th>
+                </tr>
+                {% for j in range(resultados.demandas|length) %}
+                <tr>
+                    <td>{{ j+1 }}</td>
+                    <td>{{ resultados.demandas[j] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="result-card">
+            <h2>Costos Fijos</h2>
+            <table class="parameters-table">
+                <tr>
+                    <th>Instalación</th>
+                    <th>Costo Fijo (USD)</th>
+                </tr>
+                {% for i in range(resultados.costos_fijos|length) %}
+                <tr>
+                    <td>{{ i+1 }}</td>
+                    <td>{{ "%0.2f"|format(resultados.costos_fijos[i]) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="result-card">
+            <h2>Matriz de Distancias (km)</h2>
+            <div style="overflow-x: auto;">
+                <table class="parameters-table">
+                    <thead>
+                        <tr>
+                            <th>Inst/Cliente</th>
+                            {% for j in range(resultados.demandas|length) %}
+                            <th>{{ j+1 }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(resultados.matriz_costos|length) %}
+                        <tr>
+                            <td><strong>{{ i+1 }}</strong></td>
+                            {% for j in range(resultados.matriz_costos[i]|length) %}
+                            <td>{{ resultados.matriz_costos[i][j] }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
+        </div>
+
+        {% else %}
+        <div class="error-message">
+            <h2>No se pudieron generar resultados</h2>
+            <p>No se recibieron datos válidos para mostrar los resultados. Por favor:</p>
+            <ul>
+                <li>Verifica que hayas completado todos los pasos</li>
+                <li>Intenta ejecutar el algoritmo nuevamente</li>
+                <li>Si el problema persiste, contacta al administrador</li>
+            </ul>
+            <a href="{{ url_for('index') }}" class="btn">Volver al inicio</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

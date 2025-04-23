@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parámetros del Algoritmo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .params-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .demands-grid, .costs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .error-message {
+            color: red;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ingresar Parámetros Adicionales</h1>
+        
+        <form action="{{ url_for('procesar_parametros') }}" method="POST" onsubmit="return validateForm()">
+            <input type="hidden" name="filas" value="{{ filas }}">
+            <input type="hidden" name="columnas" value="{{ columnas }}">
+            
+            <div class="params-section">
+                <h2>Demandas por Cliente</h2>
+                <div class="demands-grid">
+                    {% for j in range(columnas) %}
+                        <div class="input-group">
+                            <label for="demanda_{{ j }}">Cliente {{ j+1 }}:</label>
+                            <input type="number" step="0.1" min="0" 
+                                   id="demanda_{{ j }}" name="demanda_{{ j }}" 
+                                   value="{{ session.get('demandas', [])[j] if 'demandas' in session else '' }}" required>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="params-section">
+                <h2>Costos Fijos por Instalación</h2>
+                <div class="costs-grid">
+                    {% for i in range(filas) %}
+                        <div class="input-group">
+                            <label for="costo_fijo_{{ i }}">Instalación {{ i+1 }}:</label>
+                            <input type="number" step="0.01" min="0" 
+                                   id="costo_fijo_{{ i }}" name="costo_fijo_{{ i }}" 
+                                   value="{{ session.get('costos_fijos', [])[i] if 'costos_fijos' in session else '' }}" required>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="params-section">
+                <div class="input-group">
+                    <label for="costo_por_km">Costo por Kilómetro (USD/km):</label>
+                    <input type="number" step="0.01" min="0" 
+                           id="costo_por_km" name="costo_por_km" 
+                           value="{{ session.get('costo_por_km', '') }}" required>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button type="submit" class="btn">Ejecutar Algoritmo</button>
+                <!--<a href="{{ url_for('mostrar_resultados') }}" class="btn">Calcular Resultados</a>-->
+            </div>
+        </form>
+        
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+<script>
+    function validateForm() {
+        // Validación básica del lado del cliente
+        const costos = document.querySelectorAll('input[name^="costo_fijo_"]');
+        const demandas = document.querySelectorAll('input[name^="demanda_"]');
+        
+        for (const input of [...costos, ...demandas, document.getElementById('costo_por_km')]) {
+            if (!input.value || parseFloat(input.value) < 0) {
+                alert("Todos los valores deben ser números positivos");
+                return false;
+            }
+        }
+        return true;
+    }
+    </script>
+</html>
